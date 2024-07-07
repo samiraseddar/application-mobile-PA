@@ -1,4 +1,4 @@
-package com.example.mobileapplication
+package com.example.mobileapplication.Activity
 import LoginScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -10,18 +10,11 @@ import com.example.mobileapplication.screens.RegisterScreen
 
 //import com.example.mobileapplication.screens.LoginScreen
 
-class MainActivity : ComponentActivity() {
+class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MyApp()
+           LoginScreen()
         }
     }
-}
-
-@Composable
-fun MyApp() {
-    //LoginScreen();
-    RegisterScreen();
-
 }
