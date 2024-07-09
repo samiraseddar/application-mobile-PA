@@ -47,8 +47,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import com.example.mobileapplication.Activity.LoginActivity
-import com.example.mobileapplication.Activity.RegisterActivity
+import com.example.mobileapplication.activity.RegisterActivity
 import com.example.mobileapplication.R
 
 @Composable
