@@ -1,3 +1,4 @@
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -46,6 +47,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import com.example.mobileapplication.Activity.LoginActivity
+import com.example.mobileapplication.Activity.RegisterActivity
 import com.example.mobileapplication.R
 
 @Composable
@@ -96,14 +99,6 @@ fun LoginScreen() {
                     onSubmit = { passwordValue = it }
                 )
 
-                TextButton(
-                    onClick = { },
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text(text = "Home page", color = Color(android.graphics.Color.parseColor("#e317a2")))
-                }
-
-
                 fontSize = with(LocalDensity.current) { maxW.toSp() * 0.05 }
                     LoginButton(fontSize = fontSize, enabled = loginValue.isNotBlank() && passwordValue.isNotBlank()) {
 
@@ -115,8 +110,10 @@ fun LoginScreen() {
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.Bottom
                 ) {
+                    val context = LocalContext.current
+
                     TextButton(
-                        onClick = {}
+                        onClick = {context.startActivity(Intent(context, RegisterActivity::class.java)) }
                     ) {
                         Text(text = "New User ? ", fontSize = fontSize, color = Color.DarkGray, fontStyle = FontStyle.Normal)
                         Text(text = "Sign up", fontSize = fontSize)

@@ -13,6 +13,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MobileApplication"
         tools:targetApi="31">
+
+        <activity
+            android:name=".Activity.LoginActivity"
+            android:exported="true"
+            android:label="@string/login_activity"
+            android:theme="@style/Theme.MobileApplication">
+        </activity>
+
+        <activity
+            android:name=".Activity.RegisterActivity"
+            android:exported="true"
+            android:label="@string/register_activity"
+            android:theme="@style/Theme.MobileApplication">
+        </activity>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -23,6 +38,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

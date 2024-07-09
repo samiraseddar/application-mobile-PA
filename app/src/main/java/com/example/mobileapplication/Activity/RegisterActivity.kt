@@ -1,26 +1,16 @@
-package com.example.mobileapplication
-import LoginScreen
+package com.example.mobileapplication.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import com.example.mobileapplication.screens.RegisterScreen
 
 //import com.example.mobileapplication.screens.LoginScreen
 
-class MainActivity : ComponentActivity() {
+class RegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MyApp()
+           RegisterScreen()
         }
     }
-}
-
-@Composable
-fun MyApp() {
-    LoginScreen();
-
 }

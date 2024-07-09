@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">mobile application</string>
+    <string name="app_name">MobileApplication</string>
+    <string name="login_activity">Login</string>
+    <string name="register_activity">Register</string>
 </resources>
