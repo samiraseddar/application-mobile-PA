@@ -1,15 +1,7 @@
 import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -17,19 +9,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -41,28 +23,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import com.example.mobileapplication.activity.RegisterActivity
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobileapplication.R
+import com.example.mobileapplication.activity.RegisterActivity
+import com.example.mobileapplication.dto.LoginDTO
+import com.example.mobileapplication.viewmodel.UserViewModel
 
 @Composable
 fun LoginScreen() {
-    var loginValue by remember {
-        mutableStateOf("")
-    }
+    var loginValue by remember { mutableStateOf("") }
+    var passwordValue by remember { mutableStateOf("") }
 
-    var passwordValue by remember {
-        mutableStateOf("")
-    }
+    val userViewModel: UserViewModel = viewModel()
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(color = Color.White)) {
+    Column(modifier = Modifier.fillMaxSize().background(color = Color.White)) {
         Box(modifier = Modifier.weight(2f)) {
             ShapeImage()
         }
@@ -71,37 +48,35 @@ fun LoginScreen() {
             val maxW = maxWidth
             val maxH = maxHeight
 
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .padding(maxWidth / 25)) {
-
+            Column(modifier = Modifier.fillMaxSize().padding(maxWidth / 25)) {
                 var fontSize = with(LocalDensity.current) { maxW.toSp() * 0.08 }
-                Text(text = "Login",
+                Text(
+                    text = "Login",
                     fontSize = fontSize,
                     fontWeight = FontWeight.Normal,
                     fontFamily = FontFamily.Serif
                 )
 
                 LoginField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = maxH / 40, bottom = maxH / 40),
+                    modifier = Modifier.fillMaxWidth().padding(top = maxH / 40, bottom = maxH / 40),
                     loginValue = loginValue,
                     onSubmit = { loginValue = it }
                 )
 
                 PasswordField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = maxH / 40, bottom = maxH / 40),
+                    modifier = Modifier.fillMaxWidth().padding(top = maxH / 40, bottom = maxH / 40),
                     passwordValue = passwordValue,
                     onSubmit = { passwordValue = it }
                 )
 
                 fontSize = with(LocalDensity.current) { maxW.toSp() * 0.05 }
-                    LoginButton(fontSize = fontSize, enabled = loginValue.isNotBlank() && passwordValue.isNotBlank()) {
-
+                LoginButton(fontSize = fontSize, enabled = loginValue.isNotBlank() && passwordValue.isNotBlank()) {
+                    val loginDTO = LoginDTO().apply {
+                        mail = loginValue
+                        password = passwordValue
                     }
+                    userViewModel.login(loginDTO)
+                }
 
                 fontSize = with(LocalDensity.current) { maxW.toSp() * 0.04 }
                 Row(
@@ -110,10 +85,7 @@ fun LoginScreen() {
                     verticalAlignment = Alignment.Bottom
                 ) {
                     val context = LocalContext.current
-
-                    TextButton(
-                        onClick = {context.startActivity(Intent(context, RegisterActivity::class.java)) }
-                    ) {
+                    TextButton(onClick = { context.startActivity(Intent(context, RegisterActivity::class.java)) }) {
                         Text(text = "New User ? ", fontSize = fontSize, color = Color.DarkGray, fontStyle = FontStyle.Normal)
                         Text(text = "Sign up", fontSize = fontSize)
                     }
@@ -121,6 +93,14 @@ fun LoginScreen() {
             }
         }
     }
+
+ /*   val loginResponse by userViewModel.loginResponse.collectAsStateWithLifecycle()
+    loginResponse?.let {
+        // Handle the login response
+        // You can navigate to another screen or show a message based on the login response
+    }
+
+  */
 }
 
 @Composable
@@ -133,15 +113,14 @@ private fun ShapeImage() {
     val screenWidth = context.resources.displayMetrics.widthPixels.pxToDp()
     val screenHeight = context.resources.displayMetrics.heightPixels.pxToDp()
 
-    val myShape = GenericShape {
-            size, _ ->
-
+    val myShape = GenericShape { size, _ ->
         moveTo(0f, 0f)
         lineTo(size.width, 0f)
-        lineTo(size.width, 3* (size.height/4))
-        quadraticBezierTo(size.width/2, 1.2f * size.height,
-            0f, 3*(size.height)/4)
-
+        lineTo(size.width, 3 * (size.height / 4))
+        quadraticBezierTo(
+            size.width / 2, 1.2f * size.height,
+            0f, 3 * (size.height) / 4
+        )
         lineTo(0f, 0f)
         close()
     }
@@ -180,10 +159,7 @@ private fun LoginField(modifier: Modifier, loginValue: String, onSubmit: (String
 
 @Composable
 private fun PasswordField(modifier: Modifier, passwordValue: String, onSubmit: (String) -> Unit) {
-
-    var isVisible by remember {
-        mutableStateOf(false)
-    }
+    var isVisible by remember { mutableStateOf(false) }
 
     val leadingIcon = @Composable {
         Icon(
@@ -192,6 +168,7 @@ private fun PasswordField(modifier: Modifier, passwordValue: String, onSubmit: (
             tint = MaterialTheme.colorScheme.primary
         )
     }
+
     val trailingIcon = @Composable {
         IconButton(onClick = { isVisible = !isVisible }) {
             Icon(
@@ -214,16 +191,16 @@ private fun PasswordField(modifier: Modifier, passwordValue: String, onSubmit: (
             keyboardType = KeyboardType.Password
         ),
         keyboardActions = KeyboardActions(
-            onDone = {  }
+            onDone = { }
         ),
         singleLine = true,
         visualTransformation = if (isVisible) VisualTransformation.None else PasswordVisualTransformation(),
-        label = { Text("password") },
-        //colors = MaterialTheme.colorScheme.primary
+        label = { Text("Password") }
     )
 }
+
 @Composable
-private fun LoginButton(modifier: Modifier = Modifier, fontSize: TextUnit, enabled: Boolean=true, onSubmit: () -> Unit) {
+private fun LoginButton(modifier: Modifier = Modifier, fontSize: TextUnit, enabled: Boolean = true, onSubmit: () -> Unit) {
     TextButton(
         onClick = onSubmit,
         enabled = enabled,

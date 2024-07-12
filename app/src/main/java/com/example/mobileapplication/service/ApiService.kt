@@ -11,8 +11,8 @@ import retrofit2.http.POST
 
 interface ApiService {
     @POST("/api/login")
-    fun login(@Body loginDTO: LoginDTO?): Call<LoginResponseDTO?>?
+  fun login(@Body loginDTO: LoginDTO?): Call<LoginResponseDTO?>?
 
     @POST("/api/register")
-    fun register(@Body registerDTO: RegisterDTO?): Call<RegisterResponseDTO?>?
+ suspend    fun register(@Body registerDTO: RegisterDTO?): Call<RegisterResponseDTO?>?
 }
