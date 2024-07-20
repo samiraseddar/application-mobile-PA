@@ -26,18 +26,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mobileapplication.InscriptionActivity
 import com.example.mobileapplication.R
-import com.example.mobileapplication.activity.RegisterActivity
 import com.example.mobileapplication.dto.LoginDTO
+import com.example.mobileapplication.repository.UserRepository
+import com.example.mobileapplication.service.ApiInstance
 import com.example.mobileapplication.viewmodel.UserViewModel
 
 @Composable
 fun LoginScreen() {
     var loginValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
-
-    val userViewModel: UserViewModel = viewModel()
 
     Column(modifier = Modifier.fillMaxSize().background(color = Color.White)) {
         Box(modifier = Modifier.weight(2f)) {
@@ -75,7 +74,6 @@ fun LoginScreen() {
                         mail = loginValue
                         password = passwordValue
                     }
-                    userViewModel.login(loginDTO)
                 }
 
                 fontSize = with(LocalDensity.current) { maxW.toSp() * 0.04 }
@@ -85,7 +83,7 @@ fun LoginScreen() {
                     verticalAlignment = Alignment.Bottom
                 ) {
                     val context = LocalContext.current
-                    TextButton(onClick = { context.startActivity(Intent(context, RegisterActivity::class.java)) }) {
+                    TextButton(onClick = { context.startActivity(Intent(context, InscriptionActivity::class.java)) }) {
                         Text(text = "New User ? ", fontSize = fontSize, color = Color.DarkGray, fontStyle = FontStyle.Normal)
                         Text(text = "Sign up", fontSize = fontSize)
                     }

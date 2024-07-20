@@ -7,6 +7,8 @@ import com.example.mobileapplication.dto.RegisterDTO
 import com.example.mobileapplication.dto.RegisterResponseDTO
 import com.example.mobileapplication.dto.script.ScriptDTO
 import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -19,8 +21,8 @@ interface ApiService {
     @POST("/api/login")
     fun login(@Body loginDTO: LoginDTO?): Call<LoginResponseDTO?>?
 
-    @POST("/api/register")
-    suspend fun register(@Body registerDTO: RegisterDTO?): Call<RegisterResponseDTO?>?
+    @POST("/api/users/signUp")
+    suspend fun register(@Body registerDTO: RegisterDTO?): RegisterResponseDTO
 
     @GET("/api/scripts")
     fun getScripts(): Call<List<ScriptDTO>>
@@ -55,4 +57,11 @@ interface ApiService {
         @Query("userId2") userId2: Long,
         @Query("word") word: String
     ): Call<Set<MessageDTO>>
+}
+object ApiInstance{
+    private const val URL = "http://127.0.0.1:8080"
+    val api : ApiService by lazy {
+        Retrofit.Builder().baseUrl(URL).addConverterFactory(GsonConverterFactory.create())
+            .build().create(ApiService::class.java)
+    }
 }

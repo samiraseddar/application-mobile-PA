@@ -22,7 +22,7 @@
         </activity>
 
         <activity
-            android:name=".activity.RegisterActivity"
+            android:name=".InscriptionActivity"
             android:exported="true"
             android:label="@string/register_activity"
             android:theme="@style/Theme.MobileApplication">

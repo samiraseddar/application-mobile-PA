@@ -27,8 +27,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,9 +53,15 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.example.mobileapplication.activity.LoginActivity
 import com.example.mobileapplication.R
+import com.example.mobileapplication.dto.RegisterDTO
+import com.example.mobileapplication.repository.UserRepository
+import com.example.mobileapplication.service.ApiInstance
+import com.example.mobileapplication.viewmodel.UserViewModel
+import kotlinx.coroutines.launch
 
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(viewModel: UserViewModel) {
+
     var usernameValue by remember {
         mutableStateOf("")
     }
@@ -65,6 +73,8 @@ fun RegisterScreen() {
     var confirmPasswordValue by remember {
         mutableStateOf("")
     }
+
+    var coroutineScope = rememberCoroutineScope()
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -113,10 +123,13 @@ fun RegisterScreen() {
                 )
 
                 fontSize = with(LocalDensity.current) { maxW.toSp() * 0.05 }
-                RegisterButton(fontSize = fontSize, enabled = usernameValue.isNotBlank() && passwordValue.isNotBlank() && confirmPasswordValue.isNotBlank()) {
-
-                }
-
+                RegisterButton(fontSize = fontSize,
+                    enabled = usernameValue.isNotBlank() && passwordValue.isNotBlank() && confirmPasswordValue.isNotBlank(),
+                    onSubmit = {
+                        coroutineScope.launch {
+                            viewModel.register(RegisterDTO("test@gameil.com", "a", "b", "c", "d"))
+                        }
+                    })
                 // bouton pour naviguer vers la page de connexion
                 fontSize = with(LocalDensity.current) { maxW.toSp() * 0.04 }
                 Row(
