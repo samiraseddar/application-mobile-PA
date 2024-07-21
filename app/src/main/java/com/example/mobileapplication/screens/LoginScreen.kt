@@ -1,16 +1,21 @@
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -28,17 +33,24 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.example.mobileapplication.InscriptionActivity
 import com.example.mobileapplication.R
+import com.example.mobileapplication.activity.AccueilActivity
 import com.example.mobileapplication.dto.LoginDTO
 import com.example.mobileapplication.repository.UserRepository
-import com.example.mobileapplication.service.ApiInstance
 import com.example.mobileapplication.viewmodel.UserViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(viewModel : UserViewModel) {
     var loginValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
-
-    Column(modifier = Modifier.fillMaxSize().background(color = Color.White)) {
+    val infos = viewModel.infos.observeAsState()
+    val userId = viewModel.userId.observeAsState()
+    val coroutineScope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(color = Color.White)) {
         Box(modifier = Modifier.weight(2f)) {
             ShapeImage()
         }
@@ -47,7 +59,10 @@ fun LoginScreen() {
             val maxW = maxWidth
             val maxH = maxHeight
 
-            Column(modifier = Modifier.fillMaxSize().padding(maxWidth / 25)) {
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(maxWidth / 25)) {
                 var fontSize = with(LocalDensity.current) { maxW.toSp() * 0.08 }
                 Text(
                     text = "Login",
@@ -57,13 +72,17 @@ fun LoginScreen() {
                 )
 
                 LoginField(
-                    modifier = Modifier.fillMaxWidth().padding(top = maxH / 40, bottom = maxH / 40),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = maxH / 40, bottom = maxH / 40),
                     loginValue = loginValue,
                     onSubmit = { loginValue = it }
                 )
 
                 PasswordField(
-                    modifier = Modifier.fillMaxWidth().padding(top = maxH / 40, bottom = maxH / 40),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = maxH / 40, bottom = maxH / 40),
                     passwordValue = passwordValue,
                     onSubmit = { passwordValue = it }
                 )
@@ -73,6 +92,9 @@ fun LoginScreen() {
                     val loginDTO = LoginDTO().apply {
                         mail = loginValue
                         password = passwordValue
+                    }
+                    coroutineScope.launch {
+                        viewModel.login(loginDTO)
                     }
                 }
 
@@ -90,6 +112,19 @@ fun LoginScreen() {
                 }
             }
         }
+    }
+    
+    if(infos.value != null){
+        Toast.makeText(LocalContext.current, "Bonjour ${infos.value!!.firstName} ${infos.value!!.lastName}", Toast.LENGTH_LONG).show()
+        val context = LocalContext.current
+        val preferences = context.getSharedPreferences("token", MODE_PRIVATE).edit()
+        preferences.putString("token", infos.value!!.token)
+        userId.value?.let { preferences.putLong("id", it) }
+        preferences.apply()
+        context.startActivity(Intent(context, AccueilActivity::class.java))
+    }
+    if(userId.value?.toInt() ==  0){
+        Toast.makeText(LocalContext.current, "Identifiants érronées", Toast.LENGTH_LONG).show()
     }
 
  /*   val loginResponse by userViewModel.loginResponse.collectAsStateWithLifecycle()

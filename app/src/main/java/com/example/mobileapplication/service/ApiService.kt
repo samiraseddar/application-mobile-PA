@@ -5,6 +5,7 @@ import com.example.mobileapplication.dto.LoginResponseDTO
 import com.example.mobileapplication.dto.MessageDTO
 import com.example.mobileapplication.dto.RegisterDTO
 import com.example.mobileapplication.dto.RegisterResponseDTO
+import com.example.mobileapplication.dto.UserInfoDto
 import com.example.mobileapplication.dto.script.ScriptDTO
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -12,14 +13,15 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
-    @POST("/api/login")
-    fun login(@Body loginDTO: LoginDTO?): Call<LoginResponseDTO?>?
+    @POST("/api/users/signIn")
+    suspend fun login(@Body loginDTO: LoginDTO?): LoginResponseDTO
 
     @POST("/api/users/signUp")
     suspend fun register(@Body registerDTO: RegisterDTO?): RegisterResponseDTO
@@ -28,10 +30,12 @@ interface ApiService {
     fun getScripts(): Call<List<ScriptDTO>>
 
     @POST("/api/messages/send")
-    fun sendMessage(
+    suspend fun sendMessage(
+        @Query("senderId") senderId: Long,
         @Query("receiverId") receiverId: Long,
-        @Body message: MessageDTO
-    ): Call<MessageDTO>
+        @Body message: MessageDTO,
+        @Header("Authorization") token: String
+    ): MessageDTO
 
     @PUT("/api/messages/update/{id}")
     fun updateMessage(
@@ -57,11 +61,13 @@ interface ApiService {
         @Query("userId2") userId2: Long,
         @Query("word") word: String
     ): Call<Set<MessageDTO>>
-}
-object ApiInstance{
-    private const val URL = "http://127.0.0.1:8080"
-    val api : ApiService by lazy {
-        Retrofit.Builder().baseUrl(URL).addConverterFactory(GsonConverterFactory.create())
-            .build().create(ApiService::class.java)
-    }
+
+    @GET("/api/users/{id}")
+    suspend fun getUsersInfo(@Path("id") id: Long, @Header("Authorization") token : String) : UserInfoDto
+
+    @POST("/api/users/{id}/follow/{userId}")
+    suspend fun followUser(@Path("id") id: Long, @Path("userId")userId: Long, @Header("Authorization") token: String)
+
+    @POST("/api/users/{id}/unfollow/{userId}")
+    suspend fun unfollowUser(@Path("id") id: Long, @Path("userId")userId: Long, @Header("Authorization") token: String)
 }

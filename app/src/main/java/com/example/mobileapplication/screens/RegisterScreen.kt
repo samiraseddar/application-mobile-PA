@@ -1,6 +1,7 @@
 package com.example.mobileapplication.screens
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,10 +13,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
@@ -55,7 +58,6 @@ import com.example.mobileapplication.activity.LoginActivity
 import com.example.mobileapplication.R
 import com.example.mobileapplication.dto.RegisterDTO
 import com.example.mobileapplication.repository.UserRepository
-import com.example.mobileapplication.service.ApiInstance
 import com.example.mobileapplication.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
@@ -63,6 +65,12 @@ import kotlinx.coroutines.launch
 fun RegisterScreen(viewModel: UserViewModel) {
 
     var usernameValue by remember {
+        mutableStateOf("")
+    }
+    var firstnameValue by remember {
+        mutableStateOf("")
+    }
+    var lastnameValue by remember {
         mutableStateOf("")
     }
 
@@ -74,8 +82,9 @@ fun RegisterScreen(viewModel: UserViewModel) {
         mutableStateOf("")
     }
 
-    var coroutineScope = rememberCoroutineScope()
-
+    val registerStatus = viewModel.registerStatus.observeAsState()
+    val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color = Color.White)) {
@@ -88,6 +97,7 @@ fun RegisterScreen(viewModel: UserViewModel) {
             val maxH = maxHeight
 
             Column(modifier = Modifier
+                .verticalScroll(scrollState)
                 .fillMaxSize()
                 .padding(maxWidth / 25)) {
 
@@ -96,6 +106,30 @@ fun RegisterScreen(viewModel: UserViewModel) {
                     fontSize = fontSize,
                     fontWeight = FontWeight.Normal,
                     fontFamily = FontFamily.Serif
+                )
+
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = maxH / 40, bottom = maxH / 40)
+                        .background(color = Color.White, shape = RoundedCornerShape(20)),
+                    value = firstnameValue,
+                    shape = RoundedCornerShape(20),
+                    onValueChange = { firstnameValue = it },
+                    singleLine = true,
+                    label = { Text("First Name") }
+                )
+
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = maxH / 40, bottom = maxH / 40)
+                        .background(color = Color.White, shape = RoundedCornerShape(20)),
+                    value = lastnameValue,
+                    shape = RoundedCornerShape(20),
+                    onValueChange = { lastnameValue = it },
+                    singleLine = true,
+                    label = { Text("Last Name") }
                 )
 
                 UsernameField(
@@ -127,7 +161,7 @@ fun RegisterScreen(viewModel: UserViewModel) {
                     enabled = usernameValue.isNotBlank() && passwordValue.isNotBlank() && confirmPasswordValue.isNotBlank(),
                     onSubmit = {
                         coroutineScope.launch {
-                            viewModel.register(RegisterDTO("test@gameil.com", "a", "b", "c", "d"))
+                            viewModel.register(RegisterDTO(usernameValue, passwordValue, confirmPasswordValue, lastnameValue, firstnameValue ))
                         }
                     })
                 // bouton pour naviguer vers la page de connexion
@@ -140,7 +174,6 @@ fun RegisterScreen(viewModel: UserViewModel) {
                     val context = LocalContext.current
 
                     TextButton(
-
                         onClick = {context.startActivity(Intent(context, LoginActivity::class.java))
                         }
                     ) {
@@ -150,6 +183,10 @@ fun RegisterScreen(viewModel: UserViewModel) {
                 }
             }
         }
+    }
+
+    if(registerStatus.value == true){
+        Toast.makeText(LocalContext.current, "Inscription réussie", Toast.LENGTH_LONG).show()
     }
 }
 

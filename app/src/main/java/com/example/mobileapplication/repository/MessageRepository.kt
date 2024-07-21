@@ -16,19 +16,6 @@ class MessageRepository(private val apiService: ApiService) {
     private val _messagesBetweenUsers = MutableLiveData<Set<MessageDTO>>()
     val messagesBetweenUsers: LiveData<Set<MessageDTO>> get() = _messagesBetweenUsers
 
-    fun sendMessage(receiverId: Long, message: MessageDTO) {
-        val call = apiService.sendMessage(receiverId, message)
-        call.enqueue(object : Callback<MessageDTO> {
-            override fun onResponse(call: Call<MessageDTO>, response: Response<MessageDTO>) {
-                _messageResponse.value = response.body()
-            }
-
-            override fun onFailure(call: Call<MessageDTO>, t: Throwable) {
-                _messageResponse.value = null
-            }
-        })
-    }
-
     fun updateMessage(id: Long, newMessage: String) {
         val call = apiService.updateMessage(id, newMessage)
         call.enqueue(object : Callback<MessageDTO> {
