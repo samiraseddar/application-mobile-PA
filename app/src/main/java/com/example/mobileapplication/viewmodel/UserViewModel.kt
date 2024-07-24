@@ -1,6 +1,8 @@
 package com.example.mobileapplication.viewmodel
 
+import android.content.Context
 import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,6 +16,7 @@ import com.example.mobileapplication.dto.UserInfoDto
 import com.example.mobileapplication.repository.UserRepository
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import retrofit2.await
 
 class UserViewModel() : ViewModel() {
     private val userRepository = UserRepository()
@@ -37,13 +40,27 @@ class UserViewModel() : ViewModel() {
     private val _userInfo = MutableLiveData<UserInfoDto>()
     val userInfo : LiveData<UserInfoDto> = _userInfo
 
-   fun login(loginDTO: LoginDTO) {
+   fun login(loginDTO: LoginDTO, context: Context) {
        viewModelScope.launch {
            try{
                val responseDTO = userRepository.login(loginDTO)
                Log.d("connexion", "Connexion réussie")
                _infos.value = responseDTO
                _userId.value = responseDTO.userId
+
+               val sharedPreferences = context.getSharedPreferences("userInfos", Context.MODE_PRIVATE)
+
+               responseDTO?.nbFollowers?.let {
+                   sharedPreferences.edit().putInt("nbFollowers", it).apply() }
+               responseDTO?.nbFollowing?.let {
+                   sharedPreferences.edit().putInt("nbFollowing", it).apply() }
+               responseDTO?.nbPosts?.let {
+                   sharedPreferences.edit().putInt("nbPosts", it).apply() }
+               responseDTO?.userId?.let {
+                   sharedPreferences.edit().putLong("userId", it).apply() }
+               sharedPreferences.edit().putString("firstName", responseDTO?.firstName).apply()
+               sharedPreferences.edit().putString("lastName", responseDTO?.lastName).apply()
+               sharedPreferences.edit().putString("token", responseDTO?.token).apply()
            }catch (e: HttpException){
                Log.d("error", "Echec de la connexion $e")
            }
@@ -68,7 +85,7 @@ class UserViewModel() : ViewModel() {
             try{
                 val userInfo = userRepository.getUsersInfo(id, token)
                 Log.d("infos", "Récuperation d'info réussi $userInfo")
-                _userInfo.value = userInfo
+                _userInfo.value = userInfo.await()
             }catch (e: HttpException){
                 Log.d("error", "Echec de la récupération d'infos $e")
                 _registerStatus.value = false

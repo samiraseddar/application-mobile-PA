@@ -1,5 +1,7 @@
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -48,6 +50,7 @@ fun LoginScreen(viewModel : UserViewModel) {
     val userId = viewModel.userId.observeAsState()
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color = Color.White)) {
@@ -94,7 +97,8 @@ fun LoginScreen(viewModel : UserViewModel) {
                         password = passwordValue
                     }
                     coroutineScope.launch {
-                        viewModel.login(loginDTO)
+                        viewModel.login(loginDTO, context)
+
                     }
                 }
 

@@ -62,8 +62,8 @@ interface ApiService {
         @Query("word") word: String
     ): Call<Set<MessageDTO>>
 
-    @GET("/api/users/{id}")
-    suspend fun getUsersInfo(@Path("id") id: Long, @Header("Authorization") token : String) : UserInfoDto
+    @GET("/api/users/{userId}")
+    suspend fun getUsersInfo(@Path("userId") userId: Long, @Header("Authorization") token : String) : Call<UserInfoDto>
 
     @POST("/api/users/{id}/follow/{userId}")
     suspend fun followUser(@Path("id") id: Long, @Path("userId")userId: Long, @Header("Authorization") token: String)

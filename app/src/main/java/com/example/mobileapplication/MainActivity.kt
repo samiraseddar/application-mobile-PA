@@ -19,12 +19,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Preview
-@Composable
-fun Test(){
-    Text("test")
-}
-
 @Composable
 fun MyApp(viewModel : UserViewModel) {
     LoginScreen(viewModel);

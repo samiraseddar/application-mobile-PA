@@ -8,6 +8,7 @@ import com.example.mobileapplication.dto.RegisterDTO
 import com.example.mobileapplication.dto.RegisterResponseDTO
 import com.example.mobileapplication.dto.UserInfoDto
 import com.example.mobileapplication.network.RetrofitClient
+import retrofit2.Call
 
 
 class UserRepository() {
@@ -21,7 +22,7 @@ class UserRepository() {
         apiService.register(registerDTO)
     }
 
-    suspend fun getUsersInfo(id: Long, token: String): UserInfoDto {
+    suspend fun getUsersInfo(id: Long, token: String): Call<UserInfoDto> {
         return apiService.getUsersInfo(id, "BEARER $token")
     }
 
