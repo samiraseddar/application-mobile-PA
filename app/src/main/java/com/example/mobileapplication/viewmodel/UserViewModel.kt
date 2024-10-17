@@ -17,9 +17,14 @@ import com.example.mobileapplication.repository.UserRepository
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import retrofit2.await
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 
-class UserViewModel() : ViewModel() {
-    private val userRepository = UserRepository()
+
+class UserViewModel(application: Application) : AndroidViewModel(application) {
+    private val userRepository = UserRepository(application.applicationContext)
 
     private val _registerStatus = MutableLiveData<Boolean>()
     val registerStatus : LiveData<Boolean> = _registerStatus
@@ -30,7 +35,11 @@ class UserViewModel() : ViewModel() {
     private val _messageStatus = MutableLiveData<Boolean>()
     val messageStatus : LiveData<Boolean> = _messageStatus
 
+    private val _searchResults = MutableStateFlow<List<UserInfoDto>>(emptyList())
+    val searchResults: StateFlow<List<UserInfoDto>> = _searchResults
 
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery
     private val _infos = MutableLiveData<LoginResponseDTO>()
     val infos : LiveData<LoginResponseDTO> = _infos
 
@@ -80,42 +89,19 @@ class UserViewModel() : ViewModel() {
         }
     }
 
-    fun getUsersInfo(id : Long, token:String) {
-        viewModelScope.launch{
-            try{
-                val userInfo = userRepository.getUsersInfo(id, token)
-                Log.d("infos", "Récuperation d'info réussi $userInfo")
-                _userInfo.value = userInfo.await()
-            }catch (e: HttpException){
-                Log.d("error", "Echec de la récupération d'infos $e")
-                _registerStatus.value = false
+    fun getUsersInfo(id: Long, token: String) {
+        viewModelScope.launch {
+            try {
+                val userInfo = userRepository.getUsersInfo(id, token).await()
+                _userInfo.value = userInfo
+            } catch (e: Exception) {
+                Log.d("USER_VIEW_MODEL",_userInfo.toString())
+                e.printStackTrace()
             }
         }
     }
 
-    fun followUser(id : Long, userId : Long, token:String) {
-        viewModelScope.launch{
-            try{
-                 userRepository.followUser(id, userId, token)
-                _followStatus.value = true
-            }catch (e: HttpException){
-                Log.d("error", "Echec du follow $e")
-                _followStatus.value = false
-            }
-        }
-    }
 
-    fun unfollowUser(id : Long, userId : Long, token:String) {
-        viewModelScope.launch{
-            try{
-                userRepository.unfollowUser(id, userId, token)
-                _followStatus.value = false
-            }catch (e: HttpException){
-                Log.d("error", "Echec du unfollow $e")
-                _followStatus.value = true
-            }
-        }
-    }
 
     fun sendMessage(id : Long, userId : Long, msg : MessageDTO, token:String) {
         viewModelScope.launch{
@@ -128,4 +114,25 @@ class UserViewModel() : ViewModel() {
             }
         }
     }
+
+    fun updateSearchQuery(query: String) {
+        _searchResults.value = emptyList()
+        _searchQuery.value = query
+    }
+
+    fun searchUsers() {
+        viewModelScope.launch {
+            try {
+                val results = userRepository.searchUsers(_searchQuery.value)
+                _searchResults.value = results
+                Log.d("SEARCH",_searchResults.toString())
+
+            } catch (e: Exception) {
+                Log.d("SEARCH",e.toString())
+                _searchResults.value = emptyList()
+            }
+        }
+    }
+
+
 }
