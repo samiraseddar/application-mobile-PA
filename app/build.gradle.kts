@@ -63,6 +63,9 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.6.0")
     implementation ("androidx.compose.ui:ui-tooling-preview:1.4.3")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("androidx.navigation:navigation-compose:2.5.3")
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
     // Core and other dependencies
     implementation ("androidx.core:core-ktx:1.10.1")
@@ -72,6 +75,7 @@ dependencies {
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.androidx.foundation.android)
 
     // Testing dependencies
     testImplementation ("junit:junit:4.13.2")

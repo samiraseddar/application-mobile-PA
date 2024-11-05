@@ -1,265 +1,159 @@
-import android.content.Context
-import android.content.Context.MODE_PRIVATE
-import android.content.Intent
-import android.util.Log
+package com.example.mobileapplication.screens
+
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import com.example.mobileapplication.InscriptionActivity
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.mobileapplication.R
-import com.example.mobileapplication.activity.AccueilActivity
 import com.example.mobileapplication.dto.LoginDTO
-import com.example.mobileapplication.repository.UserRepository
 import com.example.mobileapplication.viewmodel.UserViewModel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(viewModel : UserViewModel) {
+fun LoginScreen(viewModel: UserViewModel, navController: NavController) {
     var loginValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
     val infos = viewModel.infos.observeAsState()
     val userId = viewModel.userId.observeAsState()
-    val coroutineScope = rememberCoroutineScope()
-    val scrollState = rememberScrollState()
     val context = LocalContext.current
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(color = Color.White)) {
+
+    Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Box(modifier = Modifier.weight(2f)) {
-            ShapeImage()
+            BackgroundImage()
         }
-
-        BoxWithConstraints(modifier = Modifier.weight(3f)) {
-            val maxW = maxWidth
-            val maxH = maxHeight
-
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(maxWidth / 25)) {
-                var fontSize = with(LocalDensity.current) { maxW.toSp() * 0.08 }
-                Text(
-                    text = "Login",
-                    fontSize = fontSize,
-                    fontWeight = FontWeight.Normal,
-                    fontFamily = FontFamily.Serif
-                )
-
-                LoginField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = maxH / 40, bottom = maxH / 40),
-                    loginValue = loginValue,
-                    onSubmit = { loginValue = it }
-                )
-
-                PasswordField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = maxH / 40, bottom = maxH / 40),
-                    passwordValue = passwordValue,
-                    onSubmit = { passwordValue = it }
-                )
-
-                fontSize = with(LocalDensity.current) { maxW.toSp() * 0.05 }
-                LoginButton(fontSize = fontSize, enabled = loginValue.isNotBlank() && passwordValue.isNotBlank()) {
-                    val loginDTO = LoginDTO().apply {
-                        mail = loginValue
-                        password = passwordValue
-                    }
-                    coroutineScope.launch {
-                        viewModel.login(loginDTO, context)
-
-                    }
+        Column(modifier = Modifier.weight(3f).padding(24.dp)) {
+            Text("Login", fontSize = 24.sp)
+            Spacer(modifier = Modifier.height(16.dp))
+            LoginTextField(value = loginValue, onValueChange = { loginValue = it }, icon = Icons.Outlined.Person, label = "Email")
+            Spacer(modifier = Modifier.height(8.dp))
+            PasswordTextField(value = passwordValue, onValueChange = { passwordValue = it })
+            Spacer(modifier = Modifier.height(16.dp))
+            LoginButton(
+                enabled = loginValue.isNotBlank() && passwordValue.isNotBlank(),
+                onClick = {
+                    viewModel.login(LoginDTO(mail = loginValue, password = passwordValue), context)
                 }
-
-                fontSize = with(LocalDensity.current) { maxW.toSp() * 0.04 }
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    val context = LocalContext.current
-                    TextButton(onClick = { context.startActivity(Intent(context, InscriptionActivity::class.java)) }) {
-                        Text(text = "New User ? ", fontSize = fontSize, color = Color.DarkGray, fontStyle = FontStyle.Normal)
-                        Text(text = "Sign up", fontSize = fontSize)
-                    }
-                }
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            TextButton(
+                onClick = { navController.navigate("register") },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text("S'inscrire")
             }
         }
     }
-    
-    if(infos.value != null){
-        Toast.makeText(LocalContext.current, "Bonjour ${infos.value!!.firstName} ${infos.value!!.lastName}", Toast.LENGTH_LONG).show()
-        val context = LocalContext.current
-        val preferences = context.getSharedPreferences("token", MODE_PRIVATE).edit()
-        preferences.putString("token", infos.value!!.token)
-        userId.value?.let { preferences.putLong("id", it) }
-        preferences.apply()
-        context.startActivity(Intent(context, AccueilActivity::class.java))
-    }
-    if(userId.value?.toInt() ==  0){
-        Toast.makeText(LocalContext.current, "Identifiants érronées", Toast.LENGTH_LONG).show()
+
+    LaunchedEffect(infos.value) {
+        infos.value?.let {
+            Toast.makeText(context, "Bonjour ${it.firstName} ${it.lastName}", Toast.LENGTH_LONG).show()
+            context.getSharedPreferences("token", 0).edit().apply {
+                putString("token", it.token)
+                userId.value?.let { id -> putLong("id", id) }
+                apply()
+            }
+            navController.navigate("accueil") {
+                popUpTo("login") { inclusive = true }
+            }
+        }
     }
 
- /*   val loginResponse by userViewModel.loginResponse.collectAsStateWithLifecycle()
-    loginResponse?.let {
-        // Handle the login response
-        // You can navigate to another screen or show a message based on the login response
+    LaunchedEffect(userId.value) {
+        if (userId.value == 0L) {
+            Toast.makeText(context, "Identifiants erronés", Toast.LENGTH_LONG).show()
+        }
     }
-
-  */
 }
 
 @Composable
-fun Int.pxToDp() = with(LocalDensity.current) { this@pxToDp.toDp() }
-
-@Composable
-private fun ShapeImage() {
-    val context = LocalContext.current
-    val imageResId = R.drawable.background
-    val screenWidth = context.resources.displayMetrics.widthPixels.pxToDp()
-    val screenHeight = context.resources.displayMetrics.heightPixels.pxToDp()
-
-    val myShape = GenericShape { size, _ ->
-        moveTo(0f, 0f)
-        lineTo(size.width, 0f)
-        lineTo(size.width, 3 * (size.height / 4))
-        quadraticBezierTo(
-            size.width / 2, 1.2f * size.height,
-            0f, 3 * (size.height) / 4
-        )
-        lineTo(0f, 0f)
-        close()
-    }
-
+private fun BackgroundImage() {
     Image(
-        painter = painterResource(id = imageResId),
+        painter = painterResource(R.drawable.background),
         contentDescription = null,
         modifier = Modifier
-            .size(width = screenWidth * 2f, screenHeight * 2f)
-            .clip(myShape)
-            .shadow(5.dp),
+            .fillMaxSize()
+            .clip(GenericShape { size, _ ->
+                moveTo(0f, 0f)
+                lineTo(size.width, 0f)
+                lineTo(size.width, size.height * 0.75f)
+                quadraticBezierTo(size.width / 2, size.height * 1.2f, 0f, size.height * 0.75f)
+                close()
+            }),
         contentScale = ContentScale.FillBounds
     )
 }
 
 @Composable
-private fun LoginField(modifier: Modifier, loginValue: String, onSubmit: (String) -> Unit) {
-    val leadingIcon = @Composable {
-        Icon(
-            Icons.Outlined.Person,
-            contentDescription = "",
-            tint = MaterialTheme.colorScheme.primary
-        )
-    }
-
+private fun LoginTextField(value: String, onValueChange: (String) -> Unit, icon: ImageVector, label: String) {
     OutlinedTextField(
-        modifier = modifier.background(color = Color.White, shape = RoundedCornerShape(20)),
-        leadingIcon = leadingIcon,
-        value = loginValue,
-        shape = RoundedCornerShape(20),
-        onValueChange = onSubmit,
+        value = value,
+        onValueChange = onValueChange,
+        leadingIcon = { Icon(icon, contentDescription = null) },
+        label = { Text(label) },
         singleLine = true,
-        label = { Text("Email") }
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20)
     )
 }
 
 @Composable
-private fun PasswordField(modifier: Modifier, passwordValue: String, onSubmit: (String) -> Unit) {
+private fun PasswordTextField(value: String, onValueChange: (String) -> Unit) {
     var isVisible by remember { mutableStateOf(false) }
-
-    val leadingIcon = @Composable {
-        Icon(
-            Icons.Outlined.Lock,
-            contentDescription = "",
-            tint = MaterialTheme.colorScheme.primary
-        )
-    }
-
-    val trailingIcon = @Composable {
-        IconButton(onClick = { isVisible = !isVisible }) {
-            Icon(
-                painter = if (isVisible) painterResource(R.drawable.baseline_visibility_off_24) else painterResource(R.drawable.baseline_visibility_24),
-                contentDescription = "",
-                tint = MaterialTheme.colorScheme.surfaceTint
-            )
-        }
-    }
-
     OutlinedTextField(
-        value = passwordValue,
-        onValueChange = onSubmit,
-        modifier = modifier.background(color = Color.White, shape = RoundedCornerShape(20)),
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        shape = RoundedCornerShape(20),
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Done,
-            keyboardType = KeyboardType.Password
-        ),
-        keyboardActions = KeyboardActions(
-            onDone = { }
-        ),
+        value = value,
+        onValueChange = onValueChange,
+        leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null) },
+        trailingIcon = {
+            IconButton(onClick = { isVisible = !isVisible }) {
+                Icon(
+                    painter = painterResource(if (isVisible) R.drawable.baseline_visibility_off_24 else R.drawable.baseline_visibility_24),
+                    contentDescription = null
+                )
+            }
+        },
+        label = { Text("Password") },
         singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         visualTransformation = if (isVisible) VisualTransformation.None else PasswordVisualTransformation(),
-        label = { Text("Password") }
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20)
     )
 }
 
 @Composable
-private fun LoginButton(modifier: Modifier = Modifier, fontSize: TextUnit, enabled: Boolean = true, onSubmit: () -> Unit) {
-    TextButton(
-        onClick = onSubmit,
+private fun LoginButton(enabled: Boolean, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
         enabled = enabled,
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFFFF82AB),
-                        Color(0xFFFFABAB),
-                        Color(0xFFDA70D6),
-                        Color(0xFF8A2BE2)
-                    ),
-                ),
-                shape = RoundedCornerShape(30)
-            ),
-    ) {
-        Text(
-            text = "Login",
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            fontSize = fontSize
+            .height(50.dp),
+        shape = RoundedCornerShape(25),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = Color.White
         )
+    ) {
+        Text("Login")
     }
 }

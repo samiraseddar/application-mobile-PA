@@ -7,9 +7,9 @@ import com.example.mobileapplication.dto.RegisterDTO
 import com.example.mobileapplication.dto.RegisterResponseDTO
 import com.example.mobileapplication.dto.UserInfoDto
 import com.example.mobileapplication.dto.script.ScriptDTO
+import com.example.mobileapplication.dto.script.ScriptRequest
 import retrofit2.Call
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -17,6 +17,7 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.Response
 import retrofit2.http.Query
 
 interface ApiService {
@@ -27,8 +28,13 @@ interface ApiService {
     suspend fun register(@Body registerDTO: RegisterDTO?): RegisterResponseDTO
 
     @GET("/api/scripts")
-    fun getScripts(): Call<List<ScriptDTO>>
+    suspend fun getScripts(@Header("Authorization") authToken: String): Response<List<ScriptRequest>>
 
+    @POST("/api/scripts")
+    suspend fun createScript(
+        @Header("Authorization") token: String,
+        @Body scriptRequest: ScriptRequest
+    ): Response<ScriptDTO>
     @POST("/api/messages/send")
     suspend fun sendMessage(
         @Query("senderId") senderId: Long,
@@ -55,6 +61,12 @@ interface ApiService {
         @Query("userId2") userId2: Long
     ): Call<Set<MessageDTO>>
 
+    @GET("/api/users/search")
+    suspend fun searchUsers(
+        @Query("query") query: String,
+        @Header("Authorization") token: String
+    ): List<UserInfoDto>
+
     @GET("/api/messages/search")
     fun searchMessagesInConversation(
         @Query("userId1") userId1: Long,
@@ -63,11 +75,26 @@ interface ApiService {
     ): Call<Set<MessageDTO>>
 
     @GET("/api/users/{userId}")
-    suspend fun getUsersInfo(@Path("userId") userId: Long, @Header("Authorization") token : String) : Call<UserInfoDto>
+    fun getUsersInfo(@Path("userId") userId: Long, @Header("Authorization") token: String): Call<UserInfoDto>
 
-    @POST("/api/users/{id}/follow/{userId}")
-    suspend fun followUser(@Path("id") id: Long, @Path("userId")userId: Long, @Header("Authorization") token: String)
+    @GET("/api/users/isFollowing/{userId}")
+    suspend fun isFollowing(
+        @Path("userId") userId: Long,
+        @Header("Authorization") token: String
+    ): Boolean
 
-    @POST("/api/users/{id}/unfollow/{userId}")
-    suspend fun unfollowUser(@Path("id") id: Long, @Path("userId")userId: Long, @Header("Authorization") token: String)
+    @POST("/api/users/{userId}/follows")
+    suspend fun followUser(
+        @Path("userId") userId: Long,
+        @Header("Authorization") token: String
+    ): Response<Void>
+
+    @DELETE("/api/users/{userId}/follows")
+    suspend fun unfollowUser(
+        @Path("userId") userId: Long,
+        @Header("Authorization") token: String
+    ): Response<Void>
+
+
+
 }

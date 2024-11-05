@@ -7,7 +7,7 @@ import okhttp3.OkHttpClient
 
 
 object RetrofitClient {
-    private const val BASE_URL = "http://10.0.2.2:8080"
+    private const val BASE_URL = "https://projet-annuel-1.onrender.com"
 
     val client = Retrofit.Builder()
                     .baseUrl(BASE_URL)

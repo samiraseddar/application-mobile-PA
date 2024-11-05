@@ -1,7 +1,7 @@
-import com.example.mobileapplication.dto.script.ScriptDTO
+package com.example.mobileapplication.dto.script
 
-class ScriptRequest {
-    // Getters and Setters
-    var scriptDTO: ScriptDTO? = null
+
+data class ScriptRequest (
+    var scriptDTO: ScriptDTO? = null,
     var scriptContent: String? = null
-}
+)
