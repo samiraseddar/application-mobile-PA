@@ -14,6 +14,8 @@ import com.example.mobileapplication.viewmodel.ScriptViewModel
 import androidx.navigation.NavController
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.background
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 
 @Composable
 fun NewPostScreen(scriptViewModel: ScriptViewModel, navController: NavController) {
@@ -21,7 +23,7 @@ fun NewPostScreen(scriptViewModel: ScriptViewModel, navController: NavController
     var content by remember { mutableStateOf(TextFieldValue("")) }
     var name by remember { mutableStateOf(TextFieldValue("")) }
     var selectedLanguage by remember { mutableStateOf("Python") }
-    val languages = listOf("Python", "JavaScript")
+    val languages = listOf("Python")
     val scriptCreationStatus by scriptViewModel.scriptCreationStatus.observeAsState()
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -72,11 +74,20 @@ fun NewPostScreen(scriptViewModel: ScriptViewModel, navController: NavController
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
-                .background(Color.Black)
+                .background(Color(0xFF1E1E1E))
                 .padding(bottom = 16.dp),
+            textStyle = TextStyle(
+                color = Color(0xFFD4D4D4),
+                fontFamily = FontFamily.Monospace
+            ),
             colors = TextFieldDefaults.colors(
-                unfocusedTextColor = Color.White,
-                focusedTextColor = Color.White
+                focusedTextColor = Color(0xFFD4D4D4),
+                unfocusedTextColor = Color(0xFFD4D4D4),
+                focusedContainerColor = Color(0xFF1E1E1E),
+                unfocusedContainerColor = Color(0xFF1E1E1E),
+                cursorColor = Color(0xFFD4D4D4),
+                focusedIndicatorColor = Color(0xFF007ACC),
+                unfocusedIndicatorColor = Color(0xFF404040)
             )
         )
 

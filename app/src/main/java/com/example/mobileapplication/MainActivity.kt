@@ -24,6 +24,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import com.example.mobileapplication.screens.NewPostScreen
 import com.example.mobileapplication.ui.components.LocalNavController
 import com.example.mobileapplication.viewmodel.ScriptViewModel
+import com.example.mobileapplication.screens.UserScriptScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,6 +71,11 @@ fun MainContent() {
                 }
             }
             composable("register") { RegisterScreen(viewModel) }
+            composable("mes_scripts") {
+                Sidebar(navController) {
+                    UserScriptScreen(scriptViewModel)
+                }
+            }
         }
     }
 }

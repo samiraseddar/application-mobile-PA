@@ -1,6 +1,7 @@
 package com.example.mobileapplication.viewmodel
 
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -89,6 +90,11 @@ class ScriptViewModel(application: Application) : AndroidViewModel(application) 
                 Log.e("ScriptViewModel", "Error fetching script content for $scriptId", e)
             }
         }
+    }
+
+    fun getUserId(): Long {
+        val sharedPreferences = getApplication<Application>().getSharedPreferences("userInfos", Context.MODE_PRIVATE)
+        return sharedPreferences.getLong("userId", -1L)
     }
 
     override fun onCleared() {
