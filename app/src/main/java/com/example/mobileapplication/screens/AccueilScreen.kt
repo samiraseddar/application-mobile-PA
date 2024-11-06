@@ -10,18 +10,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.mobileapplication.dto.script.ScriptRequest
+import com.example.mobileapplication.dto.script.ScriptResponseDTO
 import com.example.mobileapplication.ui.components.SearchUserEngine
 import com.example.mobileapplication.viewmodel.UserViewModel
+import com.example.mobileapplication.viewmodel.ScriptViewModel
 
 @Composable
-fun AccueilScreen(viewModel: UserViewModel) {
-    val searchQuery by viewModel.searchQuery.collectAsState()
-    val searchResults by viewModel.searchResults.collectAsState()
-    val scripts by viewModel.scripts.observeAsState(initial = emptyList())
+fun AccueilScreen(
+    userViewModel: UserViewModel,
+    scriptViewModel: ScriptViewModel
+) {
+    val searchQuery by userViewModel.searchQuery.collectAsState()
+    val searchResults by userViewModel.searchResults.collectAsState()
+    val scripts by scriptViewModel.scripts.observeAsState(initial = emptyList())
+    val scriptContents by scriptViewModel.scriptContents.observeAsState(initial = emptyMap())
 
-    // Effet pour charger les scripts au démarrage
     LaunchedEffect(Unit) {
-        viewModel.fetchScripts()
+        scriptViewModel.fetchScripts()
     }
 
     Column {
@@ -34,8 +39,8 @@ fun AccueilScreen(viewModel: UserViewModel) {
         SearchUserEngine(
             searchQuery = searchQuery,
             onSearchQueryChange = { newQuery ->
-                viewModel.updateSearchQuery(newQuery)
-                viewModel.searchUsers()
+                userViewModel.updateSearchQuery(newQuery)
+                userViewModel.searchUsers()
             },
             searchResults = searchResults
         )
@@ -54,14 +59,24 @@ fun AccueilScreen(viewModel: UserViewModel) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(scripts) { script ->
-                ScriptCard(script)
+                ScriptCard(script, scriptViewModel, scriptContents)
             }
         }
     }
 }
 
 @Composable
-fun ScriptCard(script: ScriptRequest) {
+fun ScriptCard(
+    script: ScriptResponseDTO,
+    scriptViewModel: ScriptViewModel,
+    scriptContents: Map<Long, String>
+) {
+    LaunchedEffect(script.id) {
+        if (!scriptContents.containsKey(script.id)) {
+            scriptViewModel.fetchScriptContent(script.id)
+        }
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -73,23 +88,36 @@ fun ScriptCard(script: ScriptRequest) {
                 .fillMaxWidth()
         ) {
             Text(
-                text = script.scriptDTO?.name ?: "Sans nom",
+                text = script.name,
                 style = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = script.scriptDTO?.location ?: "Emplacement inconnu",
-                style = MaterialTheme.typography.bodyMedium
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = script.scriptContent ?: "Pas de contenu",
+                text = "Langage: ${script.language}",
                 style = MaterialTheme.typography.bodyMedium
             )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = MaterialTheme.shapes.small
+            ) {
+                val content = scriptContents[script.id]
+                Text(
+                    text = when {
+                        content != null -> content
+                        else -> "Chargement du contenu..."
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -103,11 +131,11 @@ fun ScriptCard(script: ScriptRequest) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "👍 ${script.scriptDTO?.nbLikes ?: 0}",
+                        text = "👍 ${script.nbLikes}",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
-                        text = "👎 ${script.scriptDTO?.nbDislikes ?: 0}",
+                        text = "👎 ${script.nbDislikes}",
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }

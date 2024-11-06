@@ -6,8 +6,10 @@ import com.example.mobileapplication.dto.MessageDTO
 import com.example.mobileapplication.dto.RegisterDTO
 import com.example.mobileapplication.dto.RegisterResponseDTO
 import com.example.mobileapplication.dto.UserInfoDto
+import com.example.mobileapplication.dto.script.ScriptCreateRequestDTO
 import com.example.mobileapplication.dto.script.ScriptDTO
 import com.example.mobileapplication.dto.script.ScriptRequest
+import com.example.mobileapplication.dto.script.ScriptResponseDTO
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.http.Body
@@ -19,6 +21,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.Response
 import retrofit2.http.Query
+import retrofit2.http.Headers
 
 interface ApiService {
     @POST("/api/users/signIn")
@@ -28,13 +31,14 @@ interface ApiService {
     suspend fun register(@Body registerDTO: RegisterDTO?): RegisterResponseDTO
 
     @GET("/api/scripts")
-    suspend fun getScripts(@Header("Authorization") authToken: String): Response<List<ScriptRequest>>
+    suspend fun getScripts(@Header("Authorization") authToken: String): Response<List<ScriptResponseDTO>>
 
     @POST("/api/scripts")
     suspend fun createScript(
         @Header("Authorization") token: String,
-        @Body scriptRequest: ScriptRequest
+        @Body scriptRequest: ScriptCreateRequestDTO
     ): Response<ScriptDTO>
+
     @POST("/api/messages/send")
     suspend fun sendMessage(
         @Query("senderId") senderId: Long,
@@ -95,6 +99,11 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<Void>
 
-
+    @GET("/api/scripts/{scriptId}/content")
+    @Headers("Accept: text/plain")
+    suspend fun getScriptContent(
+        @Path("scriptId") scriptId: Long,
+        @Header("Authorization") token: String
+    ): Response<String>
 
 }

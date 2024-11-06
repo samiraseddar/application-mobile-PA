@@ -21,8 +21,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import com.example.mobileapplication.dto.script.ScriptRequest
-import com.example.mobileapplication.repository.ScriptRepository
 
 
 class UserViewModel(application: Application) : AndroidViewModel(application) {
@@ -50,46 +48,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _userInfo = MutableLiveData<UserInfoDto>()
     val userInfo : LiveData<UserInfoDto> = _userInfo
-
-    private val scriptRepository = ScriptRepository(application.applicationContext)
-
-    private val _scripts = MutableLiveData<List<ScriptRequest>>()
-    val scripts: LiveData<List<ScriptRequest>> = _scripts
-
-    private val _scriptCreationStatus = MutableLiveData<Boolean>()
-    val scriptCreationStatus: LiveData<Boolean> = _scriptCreationStatus
-
-    fun fetchScripts() {
-        viewModelScope.launch {
-            try {
-                scriptRepository.fetchScripts()
-            } catch (e: Exception) {
-                Log.e("UserViewModel", "Error fetching scripts", e)
-            }
-        }
-    }
-
-    init {
-        scriptRepository.scripts.observeForever { scripts ->
-            _scripts.value = scripts
-        }
-    }
-    fun resetScriptCreationStatus() {
-        _scriptCreationStatus.value = null
-    }
-
-    fun createScript(scriptRequest: ScriptRequest) {
-        viewModelScope.launch {
-            val response = scriptRepository.createScript(scriptRequest)
-            _scriptCreationStatus.value = response != null
-            Log.d("UserViewModel", "Script creation status: ${_scriptCreationStatus.value}")
-        }
-    }
-    override fun onCleared() {
-        super.onCleared()
-        scriptRepository.scripts.removeObserver { }
-    }
-
 
     fun login(loginDTO: LoginDTO, context: Context) {
        viewModelScope.launch {

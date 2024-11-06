@@ -23,6 +23,7 @@ import com.example.mobileapplication.viewmodel.UserViewModel
 import androidx.compose.runtime.CompositionLocalProvider
 import com.example.mobileapplication.screens.NewPostScreen
 import com.example.mobileapplication.ui.components.LocalNavController
+import com.example.mobileapplication.viewmodel.ScriptViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,6 +46,8 @@ fun MainContent() {
     val navController = rememberNavController()
     val viewModel: UserViewModel = viewModel()
     val profileViewModel: ProfileViewModel = viewModel()
+    val scriptViewModel: ScriptViewModel = viewModel()
+
     CompositionLocalProvider(LocalNavController provides navController) {
         NavHost(navController = navController, startDestination = "login") {
             composable("login") {
@@ -52,12 +55,12 @@ fun MainContent() {
             }
             composable("accueil") {
                 Sidebar(navController) {
-                    AccueilScreen(viewModel)
+                    AccueilScreen(viewModel, scriptViewModel)
                 }
             }
             composable("nouveau_post") {
                 Sidebar(navController) {
-                    NewPostScreen(viewModel,navController)
+                    NewPostScreen(scriptViewModel, navController)
                 }
             }
             composable("profile/{userId}") { backStackEntry ->
@@ -67,9 +70,6 @@ fun MainContent() {
                 }
             }
             composable("register") { RegisterScreen(viewModel) }
-
         }
     }
-
-
 }
