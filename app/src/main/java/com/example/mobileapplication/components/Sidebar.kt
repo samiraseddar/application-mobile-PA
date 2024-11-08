@@ -1,6 +1,8 @@
 package com.example.mobileapplication.components
 
 import android.content.Context
+import android.content.Intent
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -12,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.coroutines.launch
+import com.example.mobileapplication.MainActivity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,6 +24,7 @@ fun Sidebar(navController: NavController, content: @Composable () -> Unit) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
     val context = LocalContext.current
+    val activity = LocalContext.current as? ComponentActivity
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -65,6 +69,31 @@ fun Sidebar(navController: NavController, content: @Composable () -> Unit) {
                     },
                     icon = { Icon(Icons.Default.Person, contentDescription = null) }
                 )
+                
+                Spacer(modifier = Modifier.weight(1f))  // Pour pousser le bouton déconnexion en bas
+                
+                NavigationDrawerItem(
+                    label = { Text("Déconnexion") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { 
+                            drawerState.close()
+                        }
+                        // Effacer les SharedPreferences
+                        val sharedPreferences = context.getSharedPreferences("userInfos", Context.MODE_PRIVATE)
+                        sharedPreferences.edit().clear().commit()
+                        
+                        // Redémarrer l'activité
+                        activity?.let {
+                            val intent = Intent(it, MainActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            it.startActivity(intent)
+                            it.finish()
+                        }
+                    },
+                    icon = { Icon(Icons.Default.ExitToApp, contentDescription = null) }
+                )
+                Spacer(modifier = Modifier.height(12.dp))
             }
         }
     ) {

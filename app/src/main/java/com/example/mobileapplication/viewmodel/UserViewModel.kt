@@ -136,5 +136,8 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-
+    fun logout(context: Context) {
+        val sharedPreferences = context.getSharedPreferences("userInfos", Context.MODE_PRIVATE)
+        sharedPreferences.edit().clear().apply()
+    }
 }
