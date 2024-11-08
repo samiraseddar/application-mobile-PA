@@ -71,6 +71,8 @@ fun ScriptCard(
     scriptViewModel: ScriptViewModel,
     scriptContents: Map<Long, String>
 ) {
+    val currentUserId = scriptViewModel.getUserId()
+    
     LaunchedEffect(script.id) {
         if (!scriptContents.containsKey(script.id)) {
             scriptViewModel.fetchScriptContent(script.id)
@@ -126,18 +128,20 @@ fun ScriptCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "👍 ${script.nbLikes}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(
-                        text = "👎 ${script.nbDislikes}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                if (script.userId != currentUserId) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "👍 ${script.nbLikes}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = "👎 ${script.nbDislikes}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
         }

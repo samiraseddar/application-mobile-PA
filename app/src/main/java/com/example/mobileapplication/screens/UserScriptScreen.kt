@@ -26,7 +26,7 @@ fun UserScriptScreen(scriptViewModel: ScriptViewModel) {
     val userScripts = scripts.filter { it.userId == userId }
 
     LaunchedEffect(Unit) {
-        scriptViewModel.fetchScripts()
+        scriptViewModel.fetchPrivateScripts()
     }
 
     Column(

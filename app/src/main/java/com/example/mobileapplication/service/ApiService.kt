@@ -106,4 +106,7 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<String>
 
+    @GET("/api/scripts/private")
+    suspend fun getPrivateScripts(@Header("Authorization") authToken: String): Response<List<ScriptResponseDTO>>
+
 }

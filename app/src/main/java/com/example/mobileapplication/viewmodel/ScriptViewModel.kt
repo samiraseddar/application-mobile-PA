@@ -97,6 +97,17 @@ class ScriptViewModel(application: Application) : AndroidViewModel(application) 
         return sharedPreferences.getLong("userId", -1L)
     }
 
+    fun fetchPrivateScripts() {
+        viewModelScope.launch {
+            try {
+                scriptRepository.fetchPrivateScripts()
+            } catch (e: Exception) {
+                Log.e("ScriptViewModel", "Error fetching private scripts", e)
+                _scripts.value = emptyList()
+            }
+        }
+    }
+
     override fun onCleared() {
         super.onCleared()
         scriptRepository.scripts.removeObserver { }

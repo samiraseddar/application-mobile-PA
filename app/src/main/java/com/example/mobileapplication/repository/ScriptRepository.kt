@@ -57,4 +57,16 @@ class ScriptRepository(private val context: Context) {
             null
         }
     }
+
+    suspend fun fetchPrivateScripts() {
+        try {
+            val token = getToken() ?: throw IllegalStateException("Token not found")
+            val response = apiService.getPrivateScripts("Bearer $token")
+            _scripts.value = response.body() ?: emptyList()
+        } catch (e: Exception) {
+            Log.e("ScriptRepository", "Error fetching private scripts", e)
+            _scripts.value = emptyList()
+            throw e
+        }
+    }
 }
