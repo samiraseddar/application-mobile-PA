@@ -69,4 +69,66 @@ class ScriptRepository(private val context: Context) {
             throw e
         }
     }
+
+    suspend fun isLiked(scriptId: Long): Boolean {
+        return try {
+            val token = getToken() ?: throw IllegalStateException("Token not found")
+            val response = apiService.isLiked(scriptId, "Bearer $token")
+            response.body() ?: false
+        } catch (e: Exception) {
+            Log.e("ScriptRepository", "Error checking like status", e)
+            false
+        }
+    }
+
+    suspend fun isDisliked(scriptId: Long): Boolean {
+        return try {
+            val token = getToken() ?: throw IllegalStateException("Token not found")
+            val response = apiService.isDisliked(scriptId, "Bearer $token")
+            response.body() ?: false
+        } catch (e: Exception) {
+            Log.e("ScriptRepository", "Error checking dislike status", e)
+            false
+        }
+    }
+
+    suspend fun likeScript(scriptId: Long): Boolean {
+        return try {
+            val token = getToken() ?: throw IllegalStateException("Token not found")
+            apiService.likeScript(scriptId, "Bearer $token").isSuccessful
+        } catch (e: Exception) {
+            Log.e("ScriptRepository", "Error liking script", e)
+            false
+        }
+    }
+
+    suspend fun dislikeScript(scriptId: Long): Boolean {
+        return try {
+            val token = getToken() ?: throw IllegalStateException("Token not found")
+            apiService.dislikeScript(scriptId, "Bearer $token").isSuccessful
+        } catch (e: Exception) {
+            Log.e("ScriptRepository", "Error disliking script", e)
+            false
+        }
+    }
+
+    suspend fun removeLike(scriptId: Long): Boolean {
+        return try {
+            val token = getToken() ?: throw IllegalStateException("Token not found")
+            apiService.removeLike(scriptId, "Bearer $token").isSuccessful
+        } catch (e: Exception) {
+            Log.e("ScriptRepository", "Error removing like", e)
+            false
+        }
+    }
+
+    suspend fun removeDislike(scriptId: Long): Boolean {
+        return try {
+            val token = getToken() ?: throw IllegalStateException("Token not found")
+            apiService.removeDislike(scriptId, "Bearer $token").isSuccessful
+        } catch (e: Exception) {
+            Log.e("ScriptRepository", "Error removing dislike", e)
+            false
+        }
+    }
 }

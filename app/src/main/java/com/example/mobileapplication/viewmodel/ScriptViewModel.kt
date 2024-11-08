@@ -25,6 +25,12 @@ class ScriptViewModel(application: Application) : AndroidViewModel(application) 
     private val _scriptContents = MutableLiveData<Map<Long, String>>()
     val scriptContents: LiveData<Map<Long, String>> = _scriptContents
 
+    private val _likeStates = MutableLiveData<Map<Long, Boolean>>(mapOf())
+    val likeStates: LiveData<Map<Long, Boolean>> = _likeStates
+
+    private val _dislikeStates = MutableLiveData<Map<Long, Boolean>>(mapOf())
+    val dislikeStates: LiveData<Map<Long, Boolean>> = _dislikeStates
+
     init {
         scriptRepository.scripts.observeForever { scripts ->
             _scripts.value = scripts
@@ -104,6 +110,56 @@ class ScriptViewModel(application: Application) : AndroidViewModel(application) 
             } catch (e: Exception) {
                 Log.e("ScriptViewModel", "Error fetching private scripts", e)
                 _scripts.value = emptyList()
+            }
+        }
+    }
+
+    fun checkLikeStatus(scriptId: Long) {
+        viewModelScope.launch {
+            val isLiked = scriptRepository.isLiked(scriptId)
+            val currentStates = _likeStates.value?.toMutableMap() ?: mutableMapOf()
+            currentStates[scriptId] = isLiked
+            _likeStates.value = currentStates
+        }
+    }
+
+    fun checkDislikeStatus(scriptId: Long) {
+        viewModelScope.launch {
+            val isDisliked = scriptRepository.isDisliked(scriptId)
+            val currentStates = _dislikeStates.value?.toMutableMap() ?: mutableMapOf()
+            currentStates[scriptId] = isDisliked
+            _dislikeStates.value = currentStates
+        }
+    }
+
+    fun toggleLike(scriptId: Long) {
+        viewModelScope.launch {
+            val isCurrentlyLiked = _likeStates.value?.get(scriptId) ?: false
+            val success = if (isCurrentlyLiked) {
+                scriptRepository.removeLike(scriptId)
+            } else {
+                scriptRepository.likeScript(scriptId)
+            }
+            if (success) {
+                fetchScripts()
+                checkLikeStatus(scriptId)
+                checkDislikeStatus(scriptId)
+            }
+        }
+    }
+
+    fun toggleDislike(scriptId: Long) {
+        viewModelScope.launch {
+            val isCurrentlyDisliked = _dislikeStates.value?.get(scriptId) ?: false
+            val success = if (isCurrentlyDisliked) {
+                scriptRepository.removeDislike(scriptId)
+            } else {
+                scriptRepository.dislikeScript(scriptId)
+            }
+            if (success) {
+                fetchScripts()
+                checkLikeStatus(scriptId)
+                checkDislikeStatus(scriptId)
             }
         }
     }

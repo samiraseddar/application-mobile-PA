@@ -109,4 +109,39 @@ interface ApiService {
     @GET("/api/scripts/private")
     suspend fun getPrivateScripts(@Header("Authorization") authToken: String): Response<List<ScriptResponseDTO>>
 
+    @GET("/api/likes/{scriptId}")
+    suspend fun isLiked(
+        @Path("scriptId") scriptId: Long,
+        @Header("Authorization") token: String
+    ): Response<Boolean>
+
+    @GET("/api/dislikes/{scriptId}")
+    suspend fun isDisliked(
+        @Path("scriptId") scriptId: Long,
+        @Header("Authorization") token: String
+    ): Response<Boolean>
+
+    @POST("/api/likes/{scriptId}")
+    suspend fun likeScript(
+        @Path("scriptId") scriptId: Long,
+        @Header("Authorization") token: String
+    ): Response<Void>
+
+    @POST("/api/dislikes/{scriptId}")
+    suspend fun dislikeScript(
+        @Path("scriptId") scriptId: Long,
+        @Header("Authorization") token: String
+    ): Response<Void>
+
+    @DELETE("/api/likes/{scriptId}")
+    suspend fun removeLike(
+        @Path("scriptId") scriptId: Long,
+        @Header("Authorization") token: String
+    ): Response<Void>
+
+    @DELETE("/api/dislikes/{scriptId}")
+    suspend fun removeDislike(
+        @Path("scriptId") scriptId: Long,
+        @Header("Authorization") token: String
+    ): Response<Void>
 }
